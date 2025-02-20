@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/qgis2web.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="css/leaflet-search.css">
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 97%;
+            padding: 0;
+            margin: 0;
+        }
+
+        h1 {
+            font-family: "Trebuchet MS", sans-serif;
+            font-size: 1.5vw;
+            color: transparent;
+            background: linear-gradient(to left, #9b3287 38%, #32b9c8 68%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-align: center;
+        }
+
+        .button-container {
+            position: absolute;
+            top: 25vh;
+            left: 1vw;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        .play-pause-container {
+    position: absolute;
+    top: 10vh;
+    left: 5vw;
+    width: 7vw;
+    z-index: 1000;
+}
+
+
+
+        .layer-button {
+            margin: 0.5vw;
+            padding: 0.5vw;
+            background-color: #32b9c8;
+            border: 0.1vw solid #ffffff;
+            cursor: pointer;
+            font-family: "Trebuchet MS", sans-serif;
+            color: #ffffff;
+            font-size: 0.9vw;
+        }
+
+        .layer-button:hover {
+            background-color: #32b9c8;
+            box-shadow: inset 0 0 5em #9b3287, 1px 1px 2px #9b3287;
+        }
+
+        .active {
+            background-color: #9b3287;
+        }
+
+        .fixed-image {
+            position: absolute;
+            z-index: 1000;
+            height: auto;
+        }
+        #playPauseButton {
+    background-color: #9b3287;
+    font-size: 2vw;
+    padding: 0.5vw;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+#playPauseButton:hover {
+    background-color: #7a2565;
+}
+        #logo-tepa {
+            top: 0;
+            left: 0;
+            width: 9.5vw; /* Largeur relative à la largeur de la fenêtre */
+        }
+
+        #logo-actee {
+            bottom: 0;
+            left: 0;
+            width: 12vw; /* Largeur relative à la largeur de la fenêtre */
+        }
+
+        #logo-darksky {
+            bottom: 2vh; /* Position relative à la hauteur de la fenêtre */
+            right: 0;
+            width: 7vw; /* Largeur relative à la largeur de la fenêtre */
+        }
+
+        #logo-chauve-souris-left {
+            top: 0;
+            left: 28vw; /* Position relative à la largeur de la fenêtre */
+            width: 5vw; /* Largeur relative à la largeur de la fenêtre */
+        }
+
+        #logo-chauve-souris-right {
+            top: 0;
+            right: 28vw;
+            width: 5vw;
+        }
+
+        #mascotte-danse {
+            top: 70vh; /* Position relative à la hauteur de la fenêtre */
+            left: 5vw;
+            width: 8vw;
+        }
+
+        #infobulle {
+            top: 60vh;
+            left: 7vw;
+            width: 9vw;
+        }
+
+        #legende {
+            top: 7vh;
+            right: 0;
+            width: 5vw;
+        }
+
+        /* Ajout des media queries pour le mobile */
+        @media only screen and (max-width: 768px) {
+            h1 {
+                font-size: 3.5vw;
+                text-align: center; /* Taille de police relative à la largeur de la fenêtre pour les mobiles */
+            }
+
+            .button-container {
+                top: auto;
+                bottom: 5vh; /* Position relative à la hauteur de la fenêtre */
+                left: 50%;
+                transform: translateX(-50%);
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: 90%; /* Larguer des boutons */
+                justify-content: space-around;
+            }
+            #playPauseButton {
+    background-color: #9b3287;
+    font-size: 1vw;
+    padding: 0.5vw;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+#playPauseButton:hover {
+    background-color: #7a2565;
+}
+            .layer-button {
+                margin: 1vw;
+                padding: 1vw;
+                font-size: 3.2vw; /* Taille de police relative à la largeur de la fenêtre */
+                width: 20%; /* Largeur des boutons */
+                text-align: center;
+            }
+
+            .fixed-image {
+                display: none;
+            }
+
+            #logo-tepa {display: block;
+                width: 16vw; /* Agrandir la légende pour qu'elle soit plus visible */
+            }
+            #logo-actee {display: block;
+                width: 22vw; /* Agrandir la légende pour qu'elle soit plus visible */
+            }
+            #logo-darksky {
+                display: block;
+                width: 15vw; /* Agrandir la légende pour qu'elle soit plus visible */
+            }
+            
+
+         #legende {
+                display: block;
+                width: 5vw; /* Agrandir la légende pour qu'elle soit plus visible */
+            }}
+    </style>
+    <title>Luminosité du ciel nocturne</title>
+</head>
+<body>
+    <h1 id="mapTitle">Luminosité du ciel nocturne</h1>
+
+    <div class="button-container" id="buttonContainer">
+        <!-- Les boutons des années seront ajoutés ici en JS -->
+    </div>
+    
+    <!-- Ajout du bouton Lecture/Pause -->
+    <div class="play-pause-container">
+        <button id="playPauseButton" class="layer-button">▶ Lecture</button>
+    </div>
+    
+       
+        </script>
+    </div>
+
+    <!-- Réintégration des logos -->
+    <img id="logo-tepa" class="fixed-image" src="images/Logo TE.jpg" alt="Logo de l'entreprise">
+    <img id="logo-actee" class="fixed-image" src="images/ACTEE FNCCR.jpg" alt="Logo ACTEE">
+    <img id="logo-darksky" class="fixed-image" src="images/DarkSky.jpg" alt="Logo DarkSkyLab">
+    <img id="logo-chauve-souris-left" class="fixed-image" src="images/chauve-souris 2 fond transparent.png" alt="Logo chauve souris">
+    <img id="logo-chauve-souris-right" class="fixed-image" src="images/chauve-souris 2 fond transparent.png" alt="Logo chauve souris">
+    <img id="mascotte-danse" class="fixed-image" src="images/Mascotte danse.png" alt="Mascotte danse">
+    <img id="infobulle" class="fixed-image" src="images/infobulle2.png" alt="infobulle">
+    <img id="legende" class="fixed-image" src="images/legende.png" alt="Légende">
+
+   
+    <div id="map"></div>
+
+    <script src="js/leaflet.js"></script>
+    <script src="js/leaflet-search.js"></script>
+    <script src="data/Commune_1.js"></script>
+
+   <script>
+      var map = L.map('map', {
+    zoomControl: true,
+    maxZoom: 28,
+    minZoom: 3
+}).fitBounds([[42.6748568718869, -1.8584634639237498], [43.68038365117102, 0.07897082126837529]]);
+
+var baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+var bounds_group = new L.featureGroup([]);
+var layers = {};
+
+// Coordonnées des images des couches
+const imgBounds = [
+    [42.4576726557596, -2.000133642637565],
+    [43.98109361878045, 0.7521946854170213]
+];
+
+// 📌 ***1️⃣ Génération des boutons année et des couches*** 📌
+let buttonContainer = document.getElementById("buttonContainer");
+
+for (let year = 2014, index = 2; year <= 2023; year++, index++) {
+    let paneName = `pane_CDN${year}_${index}`;
+    let imgName = `data/CDN${year}_${index}.png`;
+
+    // 📌 Création d'une nouvelle couche pour chaque année
+    map.createPane(paneName);
+    map.getPane(paneName).style.zIndex = 400 + index;
+
+    let layer = new L.imageOverlay(imgName, imgBounds, { pane: paneName });
+    layers[year] = layer; // On stocke la couche dans layers mais on ne l'affiche pas encore
+
+    // 📌 Création dynamique des boutons pour chaque année
+    let button = document.createElement("button");
+    button.innerText = year;
+    button.id = `layer${year}Button`;
+    button.classList.add("layer-button");
+
+    button.addEventListener("click", function () {
+        Object.values(layers).forEach(layer => map.removeLayer(layer)); // Supprime toutes les couches
+        map.addLayer(layers[year]); // Ajoute la couche de l'année sélectionnée
+        updateMapTitle(`Luminosité en cœur de nuit en ${year}`);
+        resetActive();
+        this.classList.add("active");
+        stopAnimation(); // Arrête l'animation si l'utilisateur clique sur une année
+    });
+
+    buttonContainer.appendChild(button); // Ajoute le bouton dans la div
+}
+
+// 📌 ***2️⃣ Ajout de la couche 2023 au démarrage*** 📌
+let defaultYear = 2023;
+map.addLayer(layers[defaultYear]); // Charge 2023 au début
+document.getElementById(`layer${defaultYear}Button`).classList.add("active");
+updateMapTitle(`Luminosité en cœur de nuit en ${defaultYear}`);
+
+// 📌 ***3️⃣ Ajout de la couche des communes*** 📌
+var layer_Commune_1 = L.geoJson(json_Commune_1, {
+    style: {
+        color: 'rgba(35,35,35,1.0)',
+        weight: 0,
+        fillOpacity: 0
+    }
+}).addTo(map);
+bounds_group.addLayer(layer_Commune_1);
+
+// 📌 ***4️⃣ Fonction pour mettre à jour le titre*** 📌
+function updateMapTitle(title) {
+    document.getElementById('mapTitle').innerText = title;
+}
+
+// 📌 ***5️⃣ Fonction pour réinitialiser les boutons actifs*** 📌
+function resetActive() {
+    document.querySelectorAll(".layer-button").forEach(btn => btn.classList.remove("active"));
+}
+
+// 📌 ***6️⃣ Gestion de l'animation automatique*** 📌
+let isPlaying = false;
+let interval;
+let currentYear = 2014;
+let playPauseButton = document.getElementById("playPauseButton");
+
+function startAnimation() {
+    if (!isPlaying) {
+        isPlaying = true;
+        playPauseButton.innerText = "⏸ Pause";
+
+        interval = setInterval(() => {
+            currentYear++;
+            if (currentYear > 2023) currentYear = 2014; // Recommencer à 2014
+
+            Object.values(layers).forEach(layer => map.removeLayer(layer));
+            map.addLayer(layers[currentYear]);
+            updateMapTitle(`Luminosité en cœur de nuit en ${currentYear}`);
+            resetActive();
+            let activeButton = document.getElementById(`layer${currentYear}Button`);
+            if (activeButton) activeButton.classList.add("active");
+        }, 1770);
+    }
+}
+
+function stopAnimation() {
+    isPlaying = false;
+    playPauseButton.innerText = "▶ Lecture";
+    clearInterval(interval);
+}
+
+// 📌 ***7️⃣ Ajout d'événements aux boutons*** 📌
+playPauseButton.addEventListener("click", () => {
+    if (isPlaying) {
+        stopAnimation();
+    } else {
+        startAnimation();
+    }
+});
+
+// 📌 Stopper l'animation si un bouton d'année est cliqué
+document.querySelectorAll(".layer-button").forEach(btn => {
+    if (btn !== playPauseButton) {
+        btn.addEventListener("click", function () {
+            stopAnimation();
+        });
+    }
+});
+
+    </script>
+</body>
+</html>
